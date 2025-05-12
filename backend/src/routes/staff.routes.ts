@@ -5,7 +5,8 @@ import {
   getProducts, 
   createProduct, 
   updateProduct, 
-  deleteProduct 
+  deleteProduct, 
+  getProductById
 } from '../controllers/product.controller';
 import { 
   getPricing, 
@@ -18,6 +19,7 @@ const router = express.Router();
 
 // Product routes
 router.get('/products', authenticate, requireRole(['STAFF', 'ADMIN']), getProducts);
+router.get('/products/:id', authenticate, requireRole(['STAFF', 'ADMIN']), getProductById);
 router.post('/products', authenticate, requireRole(['STAFF', 'ADMIN']), createProduct);
 router.put('/products/:id', authenticate, requireRole(['STAFF', 'ADMIN']), updateProduct);
 router.delete('/products/:id', authenticate, requireRole(['STAFF', 'ADMIN']), deleteProduct);

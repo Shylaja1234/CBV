@@ -29,4 +29,9 @@ export const env = {
   cache: {
     defaultTTL: 5 * 60 * 1000, // 5 minutes
   },
+  
+  google: {
+    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+    developerKey: import.meta.env.VITE_GOOGLE_DEVELOPER_KEY || '',
+  },
 } as const; 

@@ -1,12 +1,25 @@
-
-import { useQuery } from '@tanstack/react-query';
-import { fetchProductsMock, fetchProducts } from '@/api/productsApi';
-import { Product } from '@/data/products';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  fetchProducts, 
+  createProduct as apiCreateProduct,
+  updateProduct as apiUpdateProduct,
+  deleteProduct as apiDeleteProduct,
+  ProductInput,
+  BackendProduct,
+  PaginatedResponse
+} from '@/api/productsApi';
 import { useMemo } from 'react';
 
-// This value would be set based on environment variables in a real app
-// Change to true to use the mock API instead of the actual backend API
-const USE_MOCK_API = true;
+export interface EnrichedProduct extends BackendProduct {
+  priceNumber: number;
+  displayPriceINR: string;
+  icon?: any;
+  inStock: boolean;
+  featured?: boolean;
+  tags?: string[];
+  features?: string[];
+  image: string;
+}
 
 interface ProductsFilter {
   category?: string;
@@ -18,7 +31,6 @@ interface ProductsFilter {
 }
 
 export const useProducts = (filters: ProductsFilter = {}) => {
-  // Memoize filter object to prevent unnecessary re-fetches
   const memoizedFilters = useMemo(() => filters, [
     filters.category,
     filters.search,
@@ -29,29 +41,84 @@ export const useProducts = (filters: ProductsFilter = {}) => {
     filters.brands?.join(',')
   ]);
   
-  // Use React Query to fetch and cache products
+  const queryClient = useQueryClient();
+
   const { 
-    data, 
+    data: rawData,
     isLoading, 
     error, 
     refetch 
-  } = useQuery({
+  } = useQuery<PaginatedResponse<EnrichedProduct[]>, Error>({
     queryKey: ['products', memoizedFilters],
-    queryFn: () => USE_MOCK_API ? fetchProductsMock(memoizedFilters) : fetchProducts(memoizedFilters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime in v4)
+    queryFn: async (): Promise<PaginatedResponse<EnrichedProduct[]>> => {
+      const backendResponse = await fetchProducts(memoizedFilters);
+      return {
+        ...backendResponse,
+        data: backendResponse.data.map((p: BackendProduct) => ({
+          ...p,
+          priceNumber: p.price,
+          displayPriceINR: `₹${Number(p.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          icon: null,
+          inStock: p.stock > 0,
+          featured: false,
+          tags: [],
+          features: [],
+          image: p.imageUrl || ""
+        } as EnrichedProduct)),
+      } as PaginatedResponse<EnrichedProduct[]>;
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
-  // Memoize the returned data to prevent re-renders
-  const products = useMemo(() => data?.products as Product[] || [], [data?.products]);
-  const totalProducts = useMemo(() => data?.total || 0, [data?.total]);
+  const products: EnrichedProduct[] = useMemo(() => rawData?.data || [], [rawData?.data]);
+  const totalProducts = useMemo(() => rawData?.total || 0, [rawData?.total]);
+
+  const createProductMutation = useMutation<BackendProduct, Error, ProductInput>({
+    mutationFn: async (productData: ProductInput) => {
+      const response = await apiCreateProduct(productData);
+      if (!response.data) {
+        throw new Error('Invalid response from server');
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+    onError: (error) => {
+      console.error('Error creating product:', error);
+    }
+  });
+
+  const updateProductMutation = useMutation<BackendProduct, Error, { id: number; productData: Partial<ProductInput> }>({
+    mutationFn: async ({ id, productData }) => {
+      const response = await apiUpdateProduct(id, productData);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: (id: number) => apiDeleteProduct(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
 
   return {
     products,
     totalProducts,
     isLoading,
     error,
-    refetch
+    refetch,
+    createProduct: createProductMutation.mutateAsync,
+    updateProduct: updateProductMutation.mutateAsync,
+    deleteProduct: deleteProductMutation.mutateAsync,
+    isCreatingProduct: createProductMutation.isPending,
+    isUpdatingProduct: updateProductMutation.isPending,
+    isDeletingProduct: deleteProductMutation.isPending,
   };
 };
 

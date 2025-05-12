@@ -12,13 +12,15 @@ import { setPageTitle } from "@/utils/title";
 const ProductsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("newest");
+  const [priceRange, setPriceRange] = useState<[number, number] | undefined>(undefined);
   
   // Use our custom hook to fetch products
   const { products, isLoading, totalProducts, refetch } = useProducts({
     category: selectedCategory !== "all" ? selectedCategory : undefined,
     search: searchTerm,
-    sortBy: sortBy
+    sortBy: sortBy,
+    priceRange: priceRange,
   });
   
   // Scroll to top on page load
@@ -53,6 +55,8 @@ const ProductsPage = () => {
                   onCategoryChange={setSelectedCategory}
                   onSearchChange={setSearchTerm}
                   onSortChange={setSortBy}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
                 />
                 
                 <ProductGrid products={products} isLoading={isLoading} />

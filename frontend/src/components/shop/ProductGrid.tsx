@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -10,9 +9,10 @@ import { useCart, CartItem } from "@/context/CartContext";
 import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { EnrichedProduct } from "@/hooks/useProducts";
 
 interface ProductGridProps {
-  products: Product[];
+  products: EnrichedProduct[];
   isLoading?: boolean;
 }
 
@@ -24,7 +24,7 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
     return item ? item.quantity : 0;
   };
   
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: EnrichedProduct) => {
     if (!product.inStock) {
       toast.error("Sorry, this item is out of stock.");
       return;
@@ -32,40 +32,36 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
     
     const cartItem: CartItem = {
       id: product.id,
-      title: product.title,
-      price: product.price,
+      title: product.name,
+      price: product.displayPriceINR,
       quantity: 1,
       image: product.image,
       category: product.category
     };
     
     addToCart(cartItem);
-    toast.success(`${product.title} added to cart`);
+    toast.success(`${product.name} added to cart`);
   };
   
-  const increaseQuantity = (product: Product) => {
+  const increaseQuantity = (product: EnrichedProduct) => {
     if (!product.inStock) return;
     
     const currentQuantity = getCartItemQuantity(product.id);
     if (currentQuantity > 0) {
-      // Item already in cart, increase quantity
       updateQuantity(product.id, currentQuantity + 1);
-      toast.success(`Added one more ${product.title}`);
+      toast.success(`Added one more ${product.name}`);
     } else {
-      // Item not in cart, add it
       handleAddToCart(product);
     }
   };
   
-  const decreaseQuantity = (product: Product) => {
+  const decreaseQuantity = (product: EnrichedProduct) => {
     const currentQuantity = getCartItemQuantity(product.id);
     if (currentQuantity > 1) {
-      // Decrease quantity
       updateQuantity(product.id, currentQuantity - 1);
     } else if (currentQuantity === 1) {
-      // Remove from cart
       removeFromCart(product.id);
-      toast.info(`${product.title} removed from cart`);
+      toast.info(`${product.name} removed from cart`);
     }
   };
 
@@ -109,7 +105,7 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {products.map((product) => {
+      {products.map((product: EnrichedProduct) => {
         const quantity = getCartItemQuantity(product.id);
         
         return (
@@ -136,22 +132,22 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-[1]" />
               <img 
                 src={product.image}
-                alt={product.title}
+                alt={product.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-2 left-2 z-10">
-                <div className="bg-background/80 backdrop-blur-sm p-2 rounded-lg">
+                {product.icon && <div className="bg-background/80 backdrop-blur-sm p-2 rounded-lg">
                   <product.icon className="h-5 w-5 text-primary" />
-                </div>
+                </div>}
               </div>
             </div>
             
             <div className="flex-grow p-4">
-              <h3 className="text-lg font-semibold mb-1 line-clamp-1">{product.title}</h3>
+              <h3 className="text-lg font-semibold mb-1 line-clamp-1">{product.name}</h3>
               <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
               
               <div className="flex items-end justify-between">
-                <span className="font-semibold text-lg">{product.price}</span>
+                <span className="font-semibold text-lg">{product.displayPriceINR}</span>
                 <div className="flex space-x-2">
                   <Link 
                     to={`/products/${product.id}`}

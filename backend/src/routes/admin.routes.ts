@@ -1,7 +1,7 @@
 import express from 'express';
 import { authenticate } from '../middleware/auth.middleware';
 import { requireRole } from '../middleware/role.middleware';
-import { createStaff, getStaffUsers, updateStaff, deleteStaff } from '../controllers/admin.controller';
+import { createStaff, getStaffUsers, updateStaff, deleteStaff, getAllUsers } from '../controllers/admin.controller';
 
 const router = express.Router();
 
@@ -13,5 +13,6 @@ router.post('/staff', createStaff);
 router.get('/staff', getStaffUsers);
 router.put('/staff/:id', updateStaff);
 router.delete('/staff/:id', deleteStaff);
+router.get('/users', getAllUsers);
 
 export default router; 

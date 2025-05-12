@@ -68,6 +68,44 @@ export const userApi = {
       throw error;
     }
   },
+
+  // Address CRUD
+  getAddresses: async () => {
+    const response = await axios.get('/api/users/addresses');
+    return response.data;
+  },
+  addAddress: async (data: any) => {
+    const response = await axios.post('/api/users/addresses', data);
+    return response.data;
+  },
+  updateAddress: async (id: number, data: any) => {
+    const response = await axios.put(`/api/users/addresses/${id}`, data);
+    return response.data;
+  },
+  deleteAddress: async (id: number) => {
+    const response = await axios.delete(`/api/users/addresses/${id}`);
+    return response.data;
+  },
+
+  // Order history
+  getOrders: async () => {
+    const response = await axios.get('/api/orders/user');
+    return response.data;
+  },
+  getOrderById: async (id: number) => {
+    const response = await axios.get(`/api/orders/${id}`);
+    return response.data;
+  },
+
+  // Razorpay payment
+  createRazorpayOrder: async (amount: number) => {
+    const response = await axios.post('/api/orders/create-razorpay-order', { amount });
+    return response.data;
+  },
+  checkout: async (data: any) => {
+    const response = await axios.post('/api/orders/checkout', data);
+    return response.data;
+  },
 };
 
 export type { UpdateProfileData, ChangePasswordData }; 

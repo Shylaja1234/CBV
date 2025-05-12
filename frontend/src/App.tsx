@@ -33,14 +33,11 @@ import FirstTimePasswordChange from "./pages/Auth/FirstTimePasswordChange";
 
 // Admin Pages
 import Dashboard from "./pages/Admin/Dashboard";
-import ContentEditor from "./pages/Admin/ContentEditor";
-import MediaLibrary from "./pages/Admin/MediaLibrary";
 import StaffManagement from "./pages/Admin/StaffManagement";
 import Permissions from "./pages/Admin/Permissions";
-import BlogPosts from "./pages/Admin/BlogPosts";
-import BlogCategories from "./pages/Admin/BlogCategories";
 import Messages from "./pages/Admin/Messages";
 import UserManagement from "./pages/Admin/UserManagement";
+import AdminProductManagement from "./pages/Admin/ProductManagement";
 
 // Staff Pages
 import StaffDashboard from "./pages/Staff/Dashboard";
@@ -99,11 +96,8 @@ const App = () => (
                       <Route path="dashboard" element={<Dashboard />} />
                       <Route path="users" element={<UserManagement />} />
                       <Route path="staff" element={<StaffManagement />} />
-                      <Route path="content" element={<ContentEditor />} />
-                      <Route path="media" element={<MediaLibrary />} />
-                      <Route path="blog/posts" element={<BlogPosts />} />
-                      <Route path="blog/categories" element={<BlogCategories />} />
                       <Route path="messages" element={<Messages />} />
+                      <Route path="products" element={<AdminProductManagement />} />
                     </Route>
 
                     {/* Staff Routes */}

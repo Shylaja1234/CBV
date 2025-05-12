@@ -1,6 +1,4 @@
-
 import { useState } from "react";
-import { categories } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -33,6 +31,8 @@ interface ProductsFilterProps {
   onCategoryChange: (category: string) => void;
   onSearchChange: (search: string) => void;
   onSortChange?: (sort: string) => void;
+  priceRange?: [number, number];
+  onPriceRangeChange?: (range: [number, number]) => void;
 }
 
 const sortOptions = [
@@ -47,12 +47,13 @@ const ProductsFilter = ({
   selectedCategory, 
   onCategoryChange, 
   onSearchChange,
-  onSortChange 
+  onSortChange,
+  priceRange = [0, 100],
+  onPriceRangeChange
 }: ProductsFilterProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState<number[]>([0, 100]);
+  const [sliderRange, setSliderRange] = useState<[number, number]>(priceRange);
   const [sortBy, setSortBy] = useState("featured");
-  const [tempPriceRange, setTempPriceRange] = useState(priceRange);
   const [selectedRating, setSelectedRating] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [tempSelectedRating, setTempSelectedRating] = useState<string[]>([]);
@@ -72,15 +73,16 @@ const ProductsFilter = ({
   };
 
   const handleApplyFilters = () => {
-    setPriceRange(tempPriceRange);
+    if (onPriceRangeChange) {
+      onPriceRangeChange(sliderRange);
+    }
     setSelectedRating(tempSelectedRating);
     setSelectedBrands(tempSelectedBrands);
     // Here you would typically send these filters to your backend API
-    console.log("Applied filters:", { tempPriceRange, tempSelectedRating, tempSelectedBrands });
+    console.log("Applied filters:", { sliderRange, tempSelectedRating, tempSelectedBrands });
   };
 
   const handleCancelFilters = () => {
-    setTempPriceRange(priceRange);
     setTempSelectedRating(selectedRating);
     setTempSelectedBrands(selectedBrands);
   };
@@ -146,13 +148,13 @@ const ProductsFilter = ({
                   <Slider 
                     max={100} 
                     step={1} 
-                    value={tempPriceRange}
-                    onValueChange={setTempPriceRange}
+                    value={sliderRange}
+                    onValueChange={(value) => setSliderRange(value as [number, number])}
                     className="my-4"
                   />
                   <div className="flex justify-between text-sm">
                     <span>₹0</span>
-                    <span>₹{tempPriceRange[0].toLocaleString('en-IN')} - ₹{tempPriceRange[1].toLocaleString('en-IN')}</span>
+                    <span>₹{sliderRange[0].toLocaleString('en-IN')} - ₹{sliderRange[1].toLocaleString('en-IN')}</span>
                     <span>₹100,000</span>
                   </div>
                 </div>
@@ -235,16 +237,7 @@ const ProductsFilter = ({
           <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0">
             All Products
           </TabsTrigger>
-          {categories.map((category) => (
-            <TabsTrigger 
-              key={category.id} 
-              value={category.id}
-              className="flex items-center gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0"
-            >
-              <category.icon className="h-4 w-4" />
-              {category.name}
-            </TabsTrigger>
-          ))}
+          {/* No mock data or '@/data/products' imports should be present. Only use backend data and hooks. */}
         </TabsList>
       </Tabs>
     </div>

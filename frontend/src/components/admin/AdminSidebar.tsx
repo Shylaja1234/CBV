@@ -13,6 +13,7 @@ import {
   Globe,
   LogOut,
   X,
+  ShoppingBag,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -30,16 +31,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
     { path: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard className="mr-2 h-5 w-5" /> },
     { path: "/admin/users", label: "Users", icon: <Users className="mr-2 h-5 w-5" /> },
     { path: "/admin/staff", label: "Staff", icon: <UserCog className="mr-2 h-5 w-5" /> },
-  ];
-
-  const contentItems = [
-    { path: "/admin/content", label: "Pages", icon: <PanelLeftOpen className="mr-2 h-5 w-5" /> },
-    { path: "/admin/media", label: "Media Library", icon: <Image className="mr-2 h-5 w-5" /> },
-  ];
-
-  const blogItems = [
-    { path: "/admin/blog/posts", label: "Blog Posts", icon: <FileText className="mr-2 h-5 w-5" /> },
-    { path: "/admin/blog/categories", label: "Categories", icon: <FolderTree className="mr-2 h-5 w-5" /> },
+    { path: "/admin/products", label: "Products", icon: <ShoppingBag className="mr-2 h-5 w-5" /> },
   ];
 
   const communicationItems = [
@@ -109,48 +101,6 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
               </Link>
             ))}
             
-            {/* Content Management */}
-            <div className="pt-4 mt-4 border-t">
-              <p className="text-xs uppercase font-medium text-muted-foreground mb-2 px-3">Content</p>
-              {contentItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => isMobile && onClose()}
-                  className={`
-                    flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
-                    ${isActive(item.path) 
-                      ? "bg-primary text-primary-foreground" 
-                      : "hover:bg-muted"}
-                  `}
-                >
-                  {item.icon}
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-
-            {/* Blog Management */}
-            <div className="pt-4 mt-4 border-t">
-              <p className="text-xs uppercase font-medium text-muted-foreground mb-2 px-3">Blog</p>
-              {blogItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => isMobile && onClose()}
-                  className={`
-                    flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
-                    ${isActive(item.path) 
-                      ? "bg-primary text-primary-foreground" 
-                      : "hover:bg-muted"}
-                  `}
-                >
-                  {item.icon}
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-
             {/* Communication */}
             <div className="pt-4 mt-4 border-t">
               <p className="text-xs uppercase font-medium text-muted-foreground mb-2 px-3">Communication</p>

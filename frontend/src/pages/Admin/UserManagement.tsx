@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageTransition from "@/components/shared/PageTransition";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,36 +29,52 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, UserCog, Ban, CheckCircle } from "lucide-react";
-
-// Mock users data - replace with actual API call
-const mockUsers = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    status: "active",
-    joinedDate: "2024-01-15",
-    lastLogin: "2024-03-20",
-    role: "USER"
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    status: "suspended",
-    joinedDate: "2024-02-01",
-    lastLogin: "2024-03-18",
-    role: "USER"
-  },
-  // Add more mock users as needed
-];
+import { Pencil, Trash2, UserCog, Ban, CheckCircle, Loader2 } from "lucide-react";
+import axios from "axios";
 
 const UserManagement = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Not authenticated. Please log in again.');
+        setUsers([]);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setError("");
+      try {
+        const response = await axios.get('/api/admin/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        console.log('Fetched users response:', response.data);
+        let usersArr = [];
+        if (Array.isArray(response.data)) {
+          usersArr = response.data;
+        } else if (Array.isArray(response.data.users)) {
+          usersArr = response.data.users;
+        } else if (Array.isArray(response.data.data)) {
+          usersArr = response.data.data;
+        }
+        setUsers(usersArr);
+      } catch (error) {
+        setUsers([]);
+        setError('Failed to fetch users. Make sure you are logged in as admin.');
+        toast({ title: 'Error', description: 'Failed to fetch users.' });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleEditUser = (user: any) => {
     setSelectedUser(user);
@@ -123,68 +139,78 @@ const UserManagement = () => {
           <CardDescription>View and manage user accounts</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined Date</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={user.status === "active" ? "success" : "destructive"}
-                        className="capitalize"
-                      >
-                        {user.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{new Date(user.joinedDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(user.lastLogin).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditUser(user)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleToggleStatus(user.id)}
-                        >
-                          {user.status === "active" ? (
-                            <Ban className="h-4 w-4 text-destructive" />
-                          ) : (
-                            <CheckCircle className="h-4 w-4 text-success" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteUser(user)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin mr-2" /> Loading users...
+            </div>
+          ) : error ? (
+            <div className="text-center text-destructive py-8">{error}</div>
+          ) : Array.isArray(users) && users.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No users found.</div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Joined Date</TableHead>
+                    <TableHead>Last Login</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {Array.isArray(users) && users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={user.status === "active" ? "default" : "destructive"}
+                          className="capitalize"
+                        >
+                          {user.status || "INACTIVE"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</TableCell>
+                      <TableCell>{user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "N/A"}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditUser(user)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleToggleStatus(user.id)}
+                          >
+                            {user.status === "active" ? (
+                              <Ban className="h-4 w-4 text-destructive" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 text-success" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteUser(user)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 

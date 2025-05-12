@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, ArrowLeft, ShoppingCart } from "lucide-react";
@@ -8,17 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { Product } from "@/data/products";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PageTransition from "@/components/shared/PageTransition";
-import { fetchProductsMock } from "@/api/productsApi";
+import { fetchProducts } from "@/api/productsApi";
+import { BackendProduct } from "@/api/productsApi";
 
 const FavoritesPage = () => {
   const { favorites, removeFromFavorites } = useFavorites();
   const { isAuthenticated } = useAuth();
   const { addToCart } = useCart();
-  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
+  const [favoriteProducts, setFavoriteProducts] = useState<BackendProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -34,8 +33,8 @@ const FavoritesPage = () => {
     const loadFavoriteProducts = async () => {
       try {
         setLoading(true);
-        const { products } = await fetchProductsMock();
-        const filteredProducts = products.filter(product => 
+        const response = await fetchProducts();
+        const filteredProducts = response.data.filter(product => 
           favorites.includes(product.id)
         );
         setFavoriteProducts(filteredProducts);
@@ -54,14 +53,14 @@ const FavoritesPage = () => {
     }
   }, [favorites, isAuthenticated]);
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: BackendProduct) => {
     addToCart({
       id: product.id,
-      title: product.title,
-      price: product.price,
+      title: product.name,
+      price: `₹${Number(product.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       quantity: 1,
-      image: product.image,
-      category: product.category
+      image: product.imageUrl || "",
+      category: product.category || ""
     });
   };
 
@@ -104,8 +103,8 @@ const FavoritesPage = () => {
                       <Link to={`/products/${product.id}`}>
                         <div className="aspect-video overflow-hidden">
                           <img
-                            src={product.image}
-                            alt={product.title}
+                            src={product.imageUrl}
+                            alt={product.name}
                             className="w-full h-full object-cover transition-transform hover:scale-105"
                           />
                         </div>
@@ -118,29 +117,25 @@ const FavoritesPage = () => {
                       >
                         <Heart className="h-5 w-5 fill-current" />
                       </Button>
-                      {product.featured && (
-                        <Badge className="absolute top-2 left-2">
-                          Featured
-                        </Badge>
-                      )}
                     </div>
                     <CardContent className="pt-4 flex-grow">
                       <Link to={`/products/${product.id}`}>
                         <h3 className="font-medium text-lg mb-1 hover:text-primary transition-colors">
-                          {product.title}
+                          {product.name}
                         </h3>
                       </Link>
                       <p className="text-muted-foreground text-sm mb-2">{product.category}</p>
-                      <p className="font-semibold">{product.price}</p>
+                      <p className="font-semibold">₹{Number(product.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     </CardContent>
                     <CardFooter className="border-t pt-4">
                       <Button
                         variant="outline"
                         className="w-full"
                         onClick={() => handleAddToCart(product)}
+                        disabled={product.stock <= 0}
                       >
                         <ShoppingCart className="mr-2 h-4 w-4" />
-                        Add to Cart
+                        {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
                       </Button>
                     </CardFooter>
                   </Card>

@@ -178,4 +178,31 @@ export const deleteStaff = async (req: Request, res: Response) => {
     console.error('Error deleting staff user:', error);
     res.status(500).json({ message: 'Error deleting staff user' });
   }
+};
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { role: 'USER' }, // Only users with role USER
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    // Ensure all fields are present and have defaults
+    const formatted = users.map(user => ({
+      ...user,
+      status: user.status || 'INACTIVE',
+      createdAt: user.createdAt || new Date(),
+      updatedAt: user.updatedAt || new Date(),
+    }));
+    res.json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users' });
+  }
 }; 

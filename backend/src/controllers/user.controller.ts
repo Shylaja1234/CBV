@@ -49,7 +49,7 @@ export class UserController {
   // Get user profile
   async getProfile(req: Request, res: Response) {
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).user?.userId;
       console.log('Getting profile for user:', userId);
 
       if (!userId) {
@@ -83,12 +83,12 @@ export class UserController {
   // Update user profile
   async updateProfile(req: Request, res: Response) {
     console.log('Profile update request received:', {
-      userId: (req as any).user?.id,
+      userId: (req as any).user?.userId,
       body: req.body
     });
 
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         console.log('No user ID found in request');
         return res.status(401).json({ message: 'User ID not found in token' });
@@ -171,7 +171,7 @@ export class UserController {
   // Change password
   async changePassword(req: Request, res: Response) {
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).user?.userId;
       if (!userId) {
         return res.status(401).json({ message: 'User ID not found in token' });
       }
@@ -217,6 +217,64 @@ export class UserController {
     } catch (error) {
       console.error('Error in changePassword:', error);
       res.status(500).json({ message: 'Failed to change password' });
+    }
+  }
+
+  // Address CRUD
+  async getAddresses(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) return res.status(401).json({ message: 'Not authenticated' });
+      const addresses = await prisma.address.findMany({ where: { userId } });
+      res.json(addresses);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch addresses' });
+    }
+  }
+
+  async addAddress(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) return res.status(401).json({ message: 'Not authenticated' });
+      const { name, phone, pincode, address1, address2, city, state, country } = req.body;
+      const address = await prisma.address.create({
+        data: { userId, name, phone, pincode, address1, address2, city, state, country: country || 'India' }
+      });
+      res.status(201).json(address);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to add address' });
+    }
+  }
+
+  async updateAddress(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      const addressId = Number(req.params.id);
+      if (!userId) return res.status(401).json({ message: 'Not authenticated' });
+      const { name, phone, pincode, address1, address2, city, state, country } = req.body;
+      const address = await prisma.address.findUnique({ where: { id: addressId } });
+      if (!address || address.userId !== userId) return res.status(404).json({ message: 'Address not found' });
+      const updated = await prisma.address.update({
+        where: { id: addressId },
+        data: { name, phone, pincode, address1, address2, city, state, country }
+      });
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update address' });
+    }
+  }
+
+  async deleteAddress(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      const addressId = Number(req.params.id);
+      if (!userId) return res.status(401).json({ message: 'Not authenticated' });
+      const address = await prisma.address.findUnique({ where: { id: addressId } });
+      if (!address || address.userId !== userId) return res.status(404).json({ message: 'Address not found' });
+      await prisma.address.delete({ where: { id: addressId } });
+      res.json({ message: 'Address deleted' });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to delete address' });
     }
   }
 }

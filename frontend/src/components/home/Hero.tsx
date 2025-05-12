@@ -22,13 +22,7 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-xl"
-          >
-            <div className="inline-block rounded-full bg-muted/50 backdrop-blur-sm px-4 py-1.5 mb-6">
-              <span className="text-xs font-medium text-muted-foreground">
-                Trusted by 500+ businesses across India
-              </span>
-            </div>
-            
+          > 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
               <AnimatedText 
                 text="IT Infrastructure & Cybersecurity Excellence" 
@@ -94,38 +88,6 @@ const Hero = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
-              {/* Floating card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.4 }}
-                className="absolute -bottom-6 -left-6 glass-card rounded-xl p-4 shadow-lg max-w-[200px]"
-              >
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="h-2 w-2 rounded-full bg-accent-foreground"></div>
-                  <span className="text-xs font-medium">Security Score</span>
-                </div>
-                <div className="text-2xl font-bold">99.9%</div>
-                <div className="text-xs text-muted-foreground mt-1">Uptime guarantee</div>
-              </motion.div>
-              
-              {/* Floating card */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.4 }}
-                className="absolute -top-6 -right-6 glass-card rounded-xl p-4 shadow-lg"
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="h-6 w-6 flex items-center justify-center rounded-full bg-accent text-white">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M11.4 3.60005L4.8 10.2L0.6 6.00005L1.302 5.29805L4.8 8.79605L10.698 2.89805L11.4 3.60005Z" fill="currentColor"/>
-                    </svg>
-                  </span>
-                  <span className="text-sm font-medium">ISO 27001 Certified</span>
-                </div>
-              </motion.div>
             </div>
           </motion.div>
         </div>

@@ -1,10 +1,10 @@
-
 import { Route } from "react-router-dom";
 import RequireAuth from "@/components/shared/RequireAuth";
 
 // Admin Pages
 import Dashboard from "@/pages/Admin/Dashboard";
-import ContentEditor from "@/pages/Admin/ContentEditor";
+// import ContentEditor from "@/pages/Admin/ContentEditor"; // Removed
+import AdminProductManagement from "@/pages/Admin/ProductManagement";
 
 // Staff Pages
 import StaffDashboard from "@/pages/Staff/Dashboard";
@@ -23,14 +23,7 @@ const AdminRoutes = () => {
           </RequireAuth>
         } 
       />
-      <Route 
-        path="/admin/pages/:pageId" 
-        element={
-          <RequireAuth allowedRoles={["admin"]}>
-            <ContentEditor />
-          </RequireAuth>
-        } 
-      />
+      {/* The <Route path="/admin/pages/:pageId" ... /> block has been removed */}
       
       {/* Staff Routes - Admins also have access */}
       <Route 
@@ -55,6 +48,14 @@ const AdminRoutes = () => {
           <RequireAuth allowedRoles={["admin", "staff"]}>
             <PricingManagement />
           </RequireAuth>
+        } 
+      />
+      <Route 
+        path="/admin/products" 
+        element={ 
+          <RequireAuth allowedRoles={["admin"]}> 
+            <AdminProductManagement /> 
+          </RequireAuth> 
         } 
       />
     </>

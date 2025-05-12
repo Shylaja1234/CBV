@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 interface JwtPayload {
-  id: number;
-  email: string;
+  userId: number;
+  email?: string;
   role: string;
 }
 
@@ -27,14 +27,14 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
     console.log('Decoded token:', { ...decoded, token: '[REDACTED]' });
 
-    if (!decoded.id) {
-      console.log('No user ID in token payload');
+    if (!decoded.userId) {
+      console.log('No userId in token payload');
       return res.status(401).json({ message: 'Invalid token payload' });
     }
 
     // Add the decoded user to the request object
     (req as any).user = decoded;
-    console.log('User added to request:', { id: decoded.id, role: decoded.role });
+    console.log('User added to request:', { userId: decoded.userId, role: decoded.role });
     
     next();
   } catch (error) {

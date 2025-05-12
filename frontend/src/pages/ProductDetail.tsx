@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -9,8 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCart, CartItem } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
-import { fetchProductById } from "@/api/productsApi";
-import { Product } from "@/data/products";
+import { fetchProductById, BackendProduct } from "@/api/productsApi";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PageTransition from "@/components/shared/PageTransition";
@@ -18,7 +16,7 @@ import PageTransition from "@/components/shared/PageTransition";
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<BackendProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const { addToCart, removeFromCart, items, updateQuantity } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
@@ -34,9 +32,8 @@ const ProductDetail = () => {
     const loadProduct = async () => {
       try {
         setLoading(true);
-        // Fetch the product details using the API
-        const productData = await fetchProductById(Number(id));
-        setProduct(productData);
+        const response = await fetchProductById(Number(id));
+        setProduct(response.data);
       } catch (error) {
         console.error("Error loading product:", error);
         toast.error("Failed to load product details");
@@ -51,40 +48,38 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     if (!product) return;
     
-    if (!product.inStock) {
+    if (product.stock <= 0) {
       toast.error("Sorry, this item is out of stock.");
       return;
     }
     
     const cartItem: CartItem = {
       id: product.id,
-      title: product.title,
-      price: product.price,
+      title: product.name,
+      price: `₹${Number(product.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       quantity: 1,
-      image: product.image,
-      category: product.category
+      image: "",
+      category: product.category || "Unknown Category"
     };
     
     addToCart(cartItem);
-    toast.success(`${product.title} added to cart`);
+    toast.success(`${product.name} added to cart`);
   };
   
   const increaseQuantity = () => {
-    if (!product || !product.inStock) return;
+    if (!product || product.stock <= 0) return;
     updateQuantity(Number(id), quantity + 1);
-    toast.success(`Added one more ${product.title}`);
+    toast.success(`Added one more ${product.name}`);
   };
   
   const decreaseQuantity = () => {
     if (!product) return;
     
     if (quantity > 1) {
-      // Decrease quantity
       updateQuantity(Number(id), quantity - 1);
     } else if (quantity === 1) {
-      // Remove from cart when quantity becomes 0
       removeFromCart(Number(id));
-      toast.info(`${product.title} removed from cart`);
+      toast.info(`${product.name} removed from cart`);
     }
   };
 
@@ -155,13 +150,8 @@ const ProductDetail = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Product Image */}
-              <div className="relative rounded-xl overflow-hidden border bg-card aspect-square">
-                {product.featured && (
-                  <Badge className="absolute top-4 right-4 z-10">
-                    Featured
-                  </Badge>
-                )}
-                {!product.inStock && (
+              <div className="relative rounded-xl overflow-hidden border bg-card aspect-square flex items-center justify-center">
+                {product.stock <= 0 && (
                   <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
                     <Badge variant="destructive" className="text-base px-4 py-2">
                       Out of Stock
@@ -169,8 +159,8 @@ const ProductDetail = () => {
                   </div>
                 )}
                 <img 
-                  src={product.image} 
-                  alt={product.title}
+                  src={product.imageUrl || "https://via.placeholder.com/600x600.png?text=Product+Image"}
+                  alt={product.name}
                   className="w-full h-full object-cover"
                 />
                 <Button
@@ -188,14 +178,11 @@ const ProductDetail = () => {
               {/* Product Details */}
               <div className="space-y-6">
                 <div>
-                  <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
+                  <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="bg-primary/10 p-2 rounded-full">
-                      <product.icon className="h-5 w-5 text-primary" />
-                    </div>
                     <span className="text-muted-foreground">{product.category}</span>
                   </div>
-                  <h2 className="text-2xl font-semibold">{product.price}</h2>
+                  <h2 className="text-2xl font-semibold">{`₹${Number(product.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</h2>
                 </div>
                 
                 <Separator />
@@ -205,69 +192,33 @@ const ProductDetail = () => {
                   <p className="text-muted-foreground">{product.description}</p>
                 </div>
                 
-                {product.features && (
-                  <div>
-                    <h3 className="font-medium mb-2">Features</h3>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                      {product.features.map((feature, index) => (
-                        <li key={index}>{feature}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
                 <Separator />
                 
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-4">
+                    <span className="font-medium">Stock:</span>
+                    <span>{product.stock > 0 ? product.stock : "Out of Stock"}</span>
+                  </div>
                   {quantity > 0 ? (
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center border rounded-md">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-10 w-10 rounded-none"
-                          onClick={decreaseQuantity}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="px-4 text-lg font-medium">{quantity}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-10 w-10 rounded-none"
-                          onClick={increaseQuantity}
-                          disabled={!product.inStock}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <Button 
-                        variant="outline"
-                        className="flex items-center gap-2" 
-                        onClick={() => removeFromCart(product.id)}
-                      >
-                        Remove from Cart
+                    <div className="flex items-center gap-2 mt-2">
+                      <Button size="icon" variant="outline" onClick={decreaseQuantity} disabled={quantity === 0}>
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="font-semibold text-lg w-8 text-center">{quantity}</span>
+                      <Button size="icon" variant="outline" onClick={increaseQuantity} disabled={product.stock <= quantity}>
+                        <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   ) : (
                     <Button 
-                      className="flex-grow md:flex-grow-0"
-                      disabled={!product.inStock}
+                      className="flex-grow md:flex-grow-0 mt-2"
+                      disabled={product.stock <= 0}
                       onClick={handleAddToCart}
                     >
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       Add to Cart
                     </Button>
                   )}
-                  
-                  <Button
-                    variant="outline"
-                    className={`flex-grow md:flex-grow-0 ${isFavorited ? 'border-red-500 text-red-500 hover:bg-red-50' : ''}`}
-                    onClick={toggleFavorite}
-                  >
-                    <Heart className={`mr-2 h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
-                    {isFavorited ? 'Favorited' : 'Add to Favorites'}
-                  </Button>
                 </div>
               </div>
             </div>
