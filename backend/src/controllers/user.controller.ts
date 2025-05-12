@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 const STAFF_EMAIL_DOMAIN = process.env.STAFF_EMAIL_DOMAIN || 'connectingbee.in';
