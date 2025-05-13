@@ -6,8 +6,8 @@ const ALLOWED_ORIGINS = [
   'http://localhost:8080', // Development frontend
   'http://localhost:3000', // Alternative development port
   'http://localhost:5173', // Vite default port
-  process.env.FRONTEND_URL, // Production frontend URL
-].filter(Boolean) as string[]; // Cast to string[] after filtering out undefined values
+  process.env.FRONTEND_URL, // Optional: env-based
+].filter(Boolean) as string[];
 
 const corsOptions: CorsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {

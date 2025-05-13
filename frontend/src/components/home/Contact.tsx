@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { PhoneCall, Mail, MapPin, Send } from "lucide-react";
+import api from '@/lib/axios';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -21,19 +22,30 @@ const Contact = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      await api.post('/api/messages', {
+        name: formData.name,
+        email: formData.email,
+        subject: 'Contact Form',
+        message: formData.message
+      });
       toast({
-        title: "Message Sent",
+        title: 'Message Sent',
         description: "We've received your message and will get back to you soon.",
       });
-      setFormData({ name: "", email: "", phone: "", message: "" });
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'Failed to send message. Please try again later.',
+        variant: 'destructive',
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
