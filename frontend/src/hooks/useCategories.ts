@@ -1,25 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchCategories } from '@/api/categoriesApi';
 
-export const useCategories = () => {
-  const { 
-    data, 
-    isLoading, 
-    error 
-  } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => fetchCategories(),
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    gcTime: 30 * 24 * 60 * 60 * 1000, // 30 days
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
+interface Category {
+  id: string;
+  name: string;
+}
 
-  return {
-    categories: data?.data || [],
-    isLoading,
-    error
-  };
+export const useCategories = () => {
+  return useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetchCategories();
+      // The backend returns the categories array directly
+      return Array.isArray(response) ? response : [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
 };
 
 export default useCategories;

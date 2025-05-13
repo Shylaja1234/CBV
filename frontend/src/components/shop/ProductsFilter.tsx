@@ -25,6 +25,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useCategories } from "@/hooks/useCategories";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProductsFilterProps {
   selectedCategory: string;
@@ -51,6 +53,7 @@ const ProductsFilter = ({
   priceRange = [0, 100],
   onPriceRangeChange
 }: ProductsFilterProps) => {
+  const { data: categories, isLoading: isLoadingCategories } = useCategories();
   const [searchTerm, setSearchTerm] = useState("");
   const [sliderRange, setSliderRange] = useState<[number, number]>(priceRange);
   const [sortBy, setSortBy] = useState("featured");
@@ -237,7 +240,23 @@ const ProductsFilter = ({
           <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0">
             All Products
           </TabsTrigger>
-          {/* No mock data or '@/data/products' imports should be present. Only use backend data and hooks. */}
+          {isLoadingCategories ? (
+            // Show loading skeletons while categories are being fetched
+            Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-10 w-24 flex-shrink-0" />
+            ))
+          ) : (
+            // Render actual category tabs
+            categories?.map((category) => (
+              <TabsTrigger
+                key={category.id}
+                value={category.id}
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0"
+              >
+                {category.name}
+              </TabsTrigger>
+            ))
+          )}
         </TabsList>
       </Tabs>
     </div>

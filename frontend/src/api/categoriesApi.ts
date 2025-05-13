@@ -1,10 +1,14 @@
 import { apiClient } from './apiClient';
-import { ApiResponse } from './productsApi';
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 // Function to fetch all categories
-export const fetchCategories = async (): Promise<ApiResponse<any[]>> => {
+export const fetchCategories = async (): Promise<Category[]> => {
   try {
-    const response = await apiClient.get('/api/categories');
+    const response = await apiClient.get<Category[]>('/api/categories');
     return response.data;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -13,9 +17,9 @@ export const fetchCategories = async (): Promise<ApiResponse<any[]>> => {
 };
 
 // Function to fetch a single category by ID
-export const fetchCategoryById = async (id: string): Promise<ApiResponse<any>> => {
+export const fetchCategoryById = async (id: string): Promise<Category> => {
   try {
-    const response = await apiClient.get(`/api/categories/${id}`);
+    const response = await apiClient.get<Category>(`/api/categories/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching category with ID ${id}:`, error);
@@ -24,9 +28,9 @@ export const fetchCategoryById = async (id: string): Promise<ApiResponse<any>> =
 };
 
 // Function to create a category
-export const createCategory = async (category: Omit<any, 'id'>): Promise<ApiResponse<any>> => {
+export const createCategory = async (category: Omit<Category, 'id'>): Promise<Category> => {
   try {
-    const response = await apiClient.post('/api/categories', category);
+    const response = await apiClient.post<Category>('/api/categories', category);
     return response.data;
   } catch (error) {
     console.error('Error creating category:', error);
@@ -37,10 +41,10 @@ export const createCategory = async (category: Omit<any, 'id'>): Promise<ApiResp
 // Function to update a category
 export const updateCategory = async (
   id: string,
-  category: Partial<any>
-): Promise<ApiResponse<any>> => {
+  category: Partial<Category>
+): Promise<Category> => {
   try {
-    const response = await apiClient.put(`/api/categories/${id}`, category);
+    const response = await apiClient.put<Category>(`/api/categories/${id}`, category);
     return response.data;
   } catch (error) {
     console.error(`Error updating category with ID ${id}:`, error);
@@ -49,9 +53,9 @@ export const updateCategory = async (
 };
 
 // Function to delete a category
-export const deleteCategory = async (id: string): Promise<ApiResponse<boolean>> => {
+export const deleteCategory = async (id: string): Promise<boolean> => {
   try {
-    const response = await apiClient.delete(`/api/categories/${id}`);
+    const response = await apiClient.delete<boolean>(`/api/categories/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting category with ID ${id}:`, error);

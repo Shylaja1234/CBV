@@ -44,7 +44,11 @@ const ProductsPage = () => {
                 <div className="flex justify-between items-center mb-8">
                   <h1 className="text-3xl md:text-4xl font-bold">IT Products</h1>
                   <div className="text-muted-foreground">
-                    Showing {products.length} products
+                    {isLoading ? (
+                      "Loading products..."
+                    ) : (
+                      `Showing ${products.length} of ${totalProducts} products`
+                    )}
                   </div>
                 </div>
                 
