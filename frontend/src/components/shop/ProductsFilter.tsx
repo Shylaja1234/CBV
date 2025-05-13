@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -53,7 +53,7 @@ const ProductsFilter = ({
   priceRange = [0, 100],
   onPriceRangeChange
 }: ProductsFilterProps) => {
-  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
+  const { data: categories = [], isLoading: isLoadingCategories, error } = useCategories();
   const [searchTerm, setSearchTerm] = useState("");
   const [sliderRange, setSliderRange] = useState<[number, number]>(priceRange);
   const [sortBy, setSortBy] = useState("featured");
@@ -61,6 +61,13 @@ const ProductsFilter = ({
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [tempSelectedRating, setTempSelectedRating] = useState<string[]>([]);
   const [tempSelectedBrands, setTempSelectedBrands] = useState<string[]>([]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Categories:', categories);
+    console.log('Is Loading:', isLoadingCategories);
+    console.log('Error:', error);
+  }, [categories, isLoadingCategories, error]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -108,6 +115,35 @@ const ProductsFilter = ({
         return [...prev, brand];
       }
     });
+  };
+
+  // Render category tabs
+  const renderCategoryTabs = () => {
+    if (isLoadingCategories) {
+      return Array.from({ length: 5 }).map((_, index) => (
+        <Skeleton key={index} className="h-10 w-24 flex-shrink-0" />
+      ));
+    }
+
+    if (error) {
+      console.error('Error loading categories:', error);
+      return null;
+    }
+
+    if (!Array.isArray(categories) || categories.length === 0) {
+      console.warn('No categories available');
+      return null;
+    }
+
+    return categories.map((category) => (
+      <TabsTrigger
+        key={category.id}
+        value={category.id}
+        className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0"
+      >
+        {category.name}
+      </TabsTrigger>
+    ));
   };
 
   return (
@@ -240,23 +276,7 @@ const ProductsFilter = ({
           <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0">
             All Products
           </TabsTrigger>
-          {isLoadingCategories ? (
-            // Show loading skeletons while categories are being fetched
-            Array.from({ length: 5 }).map((_, index) => (
-              <Skeleton key={index} className="h-10 w-24 flex-shrink-0" />
-            ))
-          ) : (
-            // Render actual category tabs
-            Array.isArray(categories) && categories.map((category) => (
-              <TabsTrigger
-                key={category.id}
-                value={category.id}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0"
-              >
-                {category.name}
-              </TabsTrigger>
-            ))
-          )}
+          {renderCategoryTabs()}
         </TabsList>
       </Tabs>
     </div>
