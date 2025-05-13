@@ -20,6 +20,7 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
   const { addToCart, items, updateQuantity, removeFromCart } = useCart();
   
   const getCartItemQuantity = (productId: number) => {
+    if (!Array.isArray(items)) return 0;
     const item = items.find(item => item.id === productId);
     return item ? item.quantity : 0;
   };
