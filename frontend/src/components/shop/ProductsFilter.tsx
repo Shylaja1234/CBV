@@ -119,22 +119,34 @@ const ProductsFilter = ({
 
   // Render category tabs
   const renderCategoryTabs = () => {
+    // Always show loading state first
     if (isLoadingCategories) {
       return Array.from({ length: 5 }).map((_, index) => (
         <Skeleton key={index} className="h-10 w-24 flex-shrink-0" />
       ));
     }
 
+    // If we have an error, show a message
     if (error) {
       console.error('Error loading categories:', error);
-      return null;
+      return (
+        <div className="text-sm text-red-500">
+          Error loading categories
+        </div>
+      );
     }
 
-    if (!Array.isArray(categories) || categories.length === 0) {
+    // If we have no categories, show a message
+    if (!categories || categories.length === 0) {
       console.warn('No categories available');
-      return null;
+      return (
+        <div className="text-sm text-muted-foreground">
+          No categories available
+        </div>
+      );
     }
 
+    // Render the category tabs
     return categories.map((category) => (
       <TabsTrigger
         key={category.id}
