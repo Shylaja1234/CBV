@@ -43,19 +43,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Check for existing token and validate it
     const token = localStorage.getItem(env.auth.tokenKey);
-    if (token) {
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-        } catch (err) {
-          console.error('Error parsing user data:', err);
-          // Clear invalid data
-          localStorage.removeItem(env.auth.tokenKey);
-          localStorage.removeItem('user');
-        }
+    const userData = localStorage.getItem('user');
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } catch (err) {
+        console.error('Error parsing user data:', err);
+        // Clear invalid data
+        localStorage.removeItem(env.auth.tokenKey);
+        localStorage.removeItem('user');
+        setUser(null);
       }
+    } else {
+      // If either token or user is missing, ensure user is null
+      setUser(null);
     }
     setIsLoading(false);
   }, []);

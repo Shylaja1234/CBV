@@ -31,6 +31,7 @@ export type AuthResponse = {
     isFirstLogin: boolean;
   };
   token: string;
+  refreshToken?: string;
 };
 
 export const authApi = {
