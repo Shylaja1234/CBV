@@ -47,22 +47,11 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!product) return;
-    
     if (product.stock <= 0) {
       toast.error("Sorry, this item is out of stock.");
       return;
     }
-    
-    const cartItem: CartItem = {
-      id: product.id,
-      title: product.name,
-      price: `₹${Number(product.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      quantity: 1,
-      image: "",
-      category: product.category || "Unknown Category"
-    };
-    
-    addToCart(cartItem);
+    addToCart({ productId: product.id, quantity: 1 });
     toast.success(`${product.name} added to cart`);
   };
   

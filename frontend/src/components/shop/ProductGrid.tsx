@@ -30,17 +30,7 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
       toast.error("Sorry, this item is out of stock.");
       return;
     }
-    
-    const cartItem: CartItem = {
-      id: product.id,
-      title: product.name,
-      price: product.displayPriceINR,
-      quantity: 1,
-      image: product.image,
-      category: product.category
-    };
-    
-    addToCart(cartItem);
+    addToCart({ productId: product.id, quantity: 1 });
     toast.success(`${product.name} added to cart`);
   };
   

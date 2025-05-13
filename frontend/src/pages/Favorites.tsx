@@ -54,14 +54,7 @@ const FavoritesPage = () => {
   }, [favorites, isAuthenticated]);
 
   const handleAddToCart = (product: BackendProduct) => {
-    addToCart({
-      id: product.id,
-      title: product.name,
-      price: `₹${Number(product.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      quantity: 1,
-      image: product.imageUrl || "",
-      category: product.category || ""
-    });
+    addToCart({ productId: product.id, quantity: 1 });
   };
 
   return (
