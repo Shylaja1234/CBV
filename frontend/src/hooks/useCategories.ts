@@ -21,12 +21,22 @@ export const useCategories = () => {
     queryFn: async () => {
       try {
         const response = await fetchCategories();
-        // If we get a valid response, use it
-        if (Array.isArray(response) && response.length > 0) {
+        console.log('Fetched categories response:', response);
+        // If we get a valid array, use it
+        if (Array.isArray(response)) {
           return response;
         }
+        // If response is an object with a categories property, use that
+        if (
+          response &&
+          typeof response === 'object' &&
+          'categories' in response &&
+          Array.isArray((response as any).categories)
+        ) {
+          return (response as any).categories;
+        }
         // Otherwise, use mock data
-        console.log('Using mock categories as fallback');
+        console.warn('Categories API returned unexpected shape, using mock categories');
         return mockCategories;
       } catch (error) {
         console.error('Error fetching categories:', error);
