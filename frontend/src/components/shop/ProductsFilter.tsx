@@ -137,8 +137,8 @@ const ProductsFilter = ({
     }
 
     // If we have no categories, show a message
-    if (!categories || categories.length === 0) {
-      console.warn('No categories available');
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      console.error('Categories is not a valid array:', categories);
       return (
         <div className="text-sm text-muted-foreground">
           No categories available
@@ -146,16 +146,21 @@ const ProductsFilter = ({
       );
     }
 
+    // Log categories before mapping
+    console.log('Rendering category tabs with categories:', categories);
+
     // Render the category tabs
-    return categories.map((category) => (
-      <TabsTrigger
-        key={category.id}
-        value={category.id}
-        className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0"
-      >
-        {category.name}
-      </TabsTrigger>
-    ));
+    return Array.isArray(categories)
+      ? categories.map((category) => (
+          <TabsTrigger
+            key={category.id}
+            value={category.id}
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex-shrink-0"
+          >
+            {category.name}
+          </TabsTrigger>
+        ))
+      : null;
   };
 
   return (
