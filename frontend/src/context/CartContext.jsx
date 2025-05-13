@@ -13,7 +13,7 @@ export const CartProvider = ({ children }) => {
   // Fetch cart items from backend
   const fetchCart = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setCartItems([]);
         setLoading(false);
@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (product, quantity = 1) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Please login to add items to cart');
       }
@@ -69,7 +69,7 @@ export const CartProvider = ({ children }) => {
 
   const updateQuantity = async (cartItemId, quantity) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Please login to update cart');
       }
@@ -94,7 +94,7 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = async (cartItemId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Please login to remove items from cart');
       }
@@ -116,7 +116,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Please login to clear cart');
       }
