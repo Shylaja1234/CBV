@@ -20,7 +20,7 @@ export const CartProvider = ({ children }) => {
         return;
       }
 
-      const response = await api.get('/cart', {
+      const response = await api.get('/api/cart', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCartItems(response.data);
@@ -45,7 +45,7 @@ export const CartProvider = ({ children }) => {
         throw new Error('Please login to add items to cart');
       }
 
-      const response = await api.post('/cart/add', 
+      const response = await api.post('/api/cart/add', 
         { productId: product.id, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -74,7 +74,7 @@ export const CartProvider = ({ children }) => {
         throw new Error('Please login to update cart');
       }
 
-      const response = await api.put(`/cart/items/${cartItemId}`,
+      const response = await api.put(`/api/cart/items/${cartItemId}`,
         { quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -99,7 +99,7 @@ export const CartProvider = ({ children }) => {
         throw new Error('Please login to remove items from cart');
       }
 
-      await api.delete(`/cart/items/${cartItemId}`, {
+      await api.delete(`/api/cart/items/${cartItemId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -121,7 +121,7 @@ export const CartProvider = ({ children }) => {
         throw new Error('Please login to clear cart');
       }
 
-      await api.delete('/cart/clear', {
+      await api.delete('/api/cart/clear', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
