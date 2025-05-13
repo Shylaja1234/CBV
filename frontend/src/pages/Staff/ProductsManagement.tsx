@@ -46,7 +46,7 @@ const ProductsManagement = () => {
     isDeletingProduct 
   } = useProducts();
 
-  const { categories, isLoading: isLoadingCategories } = useCategories();
+  const { data: categories = [], isLoading: isLoadingCategories, error: categoriesError } = useCategories();
 
   const [selectedProduct, setSelectedProduct] = useState<ProductFormData | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -310,7 +310,7 @@ const ProductsManagement = () => {
                     <SelectValue placeholder={isLoadingCategories ? "Loading..." : "Select a category"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map(category => (
+                    {Array.isArray(categories) && categories.map(category => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>
