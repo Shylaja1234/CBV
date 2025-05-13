@@ -53,7 +53,7 @@ const ProductsFilter = ({
   priceRange = [0, 100],
   onPriceRangeChange
 }: ProductsFilterProps) => {
-  const { data: categories, isLoading: isLoadingCategories } = useCategories();
+  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
   const [searchTerm, setSearchTerm] = useState("");
   const [sliderRange, setSliderRange] = useState<[number, number]>(priceRange);
   const [sortBy, setSortBy] = useState("featured");
@@ -247,7 +247,7 @@ const ProductsFilter = ({
             ))
           ) : (
             // Render actual category tabs
-            categories?.map((category) => (
+            Array.isArray(categories) && categories.map((category) => (
               <TabsTrigger
                 key={category.id}
                 value={category.id}
