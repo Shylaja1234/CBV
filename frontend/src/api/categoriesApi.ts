@@ -1,4 +1,5 @@
 import { apiClient } from './apiClient';
+import { API_ENDPOINTS } from '@/constants/api';
 
 interface Category {
   id: string;
@@ -8,33 +9,33 @@ interface Category {
 // Function to fetch all categories
 export const fetchCategories = async (): Promise<Category[]> => {
   try {
-    const response = await apiClient.get<Category[]>('/api/categories');
-    return response.data;
+    const response = await apiClient.get<Category[]>(API_ENDPOINTS.CATEGORIES.BASE);
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching categories:', error);
-    throw error;
+    return [];
   }
 };
 
 // Function to fetch a single category by ID
-export const fetchCategoryById = async (id: string): Promise<Category> => {
+export const fetchCategoryById = async (id: string): Promise<Category | null> => {
   try {
-    const response = await apiClient.get<Category>(`/api/categories/${id}`);
+    const response = await apiClient.get<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id));
     return response.data;
   } catch (error) {
     console.error(`Error fetching category with ID ${id}:`, error);
-    throw error;
+    return null;
   }
 };
 
 // Function to create a category
-export const createCategory = async (category: Omit<Category, 'id'>): Promise<Category> => {
+export const createCategory = async (category: Omit<Category, 'id'>): Promise<Category | null> => {
   try {
-    const response = await apiClient.post<Category>('/api/categories', category);
+    const response = await apiClient.post<Category>(API_ENDPOINTS.CATEGORIES.BASE, category);
     return response.data;
   } catch (error) {
     console.error('Error creating category:', error);
-    throw error;
+    return null;
   }
 };
 
@@ -42,23 +43,23 @@ export const createCategory = async (category: Omit<Category, 'id'>): Promise<Ca
 export const updateCategory = async (
   id: string,
   category: Partial<Category>
-): Promise<Category> => {
+): Promise<Category | null> => {
   try {
-    const response = await apiClient.put<Category>(`/api/categories/${id}`, category);
+    const response = await apiClient.put<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), category);
     return response.data;
   } catch (error) {
     console.error(`Error updating category with ID ${id}:`, error);
-    throw error;
+    return null;
   }
 };
 
 // Function to delete a category
 export const deleteCategory = async (id: string): Promise<boolean> => {
   try {
-    const response = await apiClient.delete<boolean>(`/api/categories/${id}`);
-    return response.data;
+    await apiClient.delete(API_ENDPOINTS.CATEGORIES.BY_ID(id));
+    return true;
   } catch (error) {
     console.error(`Error deleting category with ID ${id}:`, error);
-    throw error;
+    return false;
   }
 };
