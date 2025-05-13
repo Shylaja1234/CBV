@@ -13,7 +13,7 @@
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:cleanup": "ts-node prisma/cleanup.ts",
     "init:admin": "ts-node src/scripts/initAdmin.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "chmod +x ./node_modules/.bin/prisma && npx prisma generate"
   },
   "keywords": [],
   "author": "",
