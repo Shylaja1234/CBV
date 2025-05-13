@@ -12,7 +12,8 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:cleanup": "ts-node prisma/cleanup.ts",
-    "init:admin": "ts-node src/scripts/initAdmin.ts"
+    "init:admin": "ts-node src/scripts/initAdmin.ts",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
