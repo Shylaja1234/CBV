@@ -27,18 +27,18 @@ const Messages = () => {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
       setLoading(true);
-      setError("");
+      setError(null);
       try {
         const token = localStorage.getItem('authToken');
         const response = await api.get('/api/messages', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setMessages(response.data);
+        setMessages(Array.isArray(response.data) ? response.data : []);
       } catch (err) {
         setError('Failed to fetch messages.');
         setMessages([]);
@@ -49,11 +49,11 @@ const Messages = () => {
     fetchMessages();
   }, []);
 
-  const filteredMessages = messages.filter(message => 
+  const filteredMessages = Array.isArray(messages) ? messages.filter(message => 
     message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     message.subject.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) : [];
 
   const handleMarkAsRead = async (id: number) => {
     try {
@@ -137,6 +137,8 @@ const Messages = () => {
               <div className="flex justify-center items-center py-12">Loading messages...</div>
             ) : error ? (
               <div className="text-center text-destructive py-8">{error}</div>
+            ) : filteredMessages.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">No messages found.</div>
             ) : (
               <Table>
                 <TableHeader>
