@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, UserCog, Ban, CheckCircle, Loader2 } from "lucide-react";
-import axios from "axios";
+import api from '@/lib/axios';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -52,7 +52,7 @@ const UserManagement = () => {
       setLoading(true);
       setError("");
       try {
-        const response = await axios.get('/api/admin/users', {
+        const response = await api.get('/api/admin/users', {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log('Fetched users response:', response.data);

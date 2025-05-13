@@ -1,4 +1,4 @@
-import axios from "@/lib/axios";
+import api from "@/lib/axios";
 import { env } from '@/config/env';
 
 interface UpdateProfileData {
@@ -16,7 +16,7 @@ export const userApi = {
   getProfile: async () => {
     try {
       console.log('Getting user profile...');
-      const response = await axios.get("/api/users/profile");
+      const response = await api.get("/api/users/profile");
       console.log('Profile response:', response.data);
       return response.data;
     } catch (error: any) {
@@ -37,7 +37,7 @@ export const userApi = {
       const token = localStorage.getItem(env.auth.tokenKey);
       console.log('Auth token present:', !!token);
       
-      const response = await axios.put("/api/users/profile", data);
+      const response = await api.put("/api/users/profile", data);
       console.log('Update response:', response.data);
       return response.data;
     } catch (error: any) {
@@ -55,7 +55,7 @@ export const userApi = {
   changePassword: async (data: ChangePasswordData) => {
     try {
       console.log('Changing password...');
-      const response = await axios.put("/api/users/change-password", data);
+      const response = await api.put("/api/users/change-password", data);
       console.log('Password change response:', response.data);
       return response.data;
     } catch (error: any) {
@@ -71,39 +71,39 @@ export const userApi = {
 
   // Address CRUD
   getAddresses: async () => {
-    const response = await axios.get('/api/users/addresses');
+    const response = await api.get('/api/users/addresses');
     return response.data;
   },
   addAddress: async (data: any) => {
-    const response = await axios.post('/api/users/addresses', data);
+    const response = await api.post('/api/users/addresses', data);
     return response.data;
   },
   updateAddress: async (id: number, data: any) => {
-    const response = await axios.put(`/api/users/addresses/${id}`, data);
+    const response = await api.put(`/api/users/addresses/${id}`, data);
     return response.data;
   },
   deleteAddress: async (id: number) => {
-    const response = await axios.delete(`/api/users/addresses/${id}`);
+    const response = await api.delete(`/api/users/addresses/${id}`);
     return response.data;
   },
 
   // Order history
   getOrders: async () => {
-    const response = await axios.get('/api/orders/user');
+    const response = await api.get('/api/orders/user');
     return response.data;
   },
   getOrderById: async (id: number) => {
-    const response = await axios.get(`/api/orders/${id}`);
+    const response = await api.get(`/api/orders/${id}`);
     return response.data;
   },
 
   // Razorpay payment
   createRazorpayOrder: async (amount: number) => {
-    const response = await axios.post('/api/orders/create-razorpay-order', { amount });
+    const response = await api.post('/api/orders/create-razorpay-order', { amount });
     return response.data;
   },
   checkout: async (data: any) => {
-    const response = await axios.post('/api/orders/checkout', data);
+    const response = await api.post('/api/orders/checkout', data);
     return response.data;
   },
 };
