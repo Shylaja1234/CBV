@@ -2,6 +2,7 @@ import cors from 'cors';
 import { CorsOptions } from 'cors';
 
 const ALLOWED_ORIGINS = [
+  'https://cbv-eight.vercel.app', // Production frontend
   'http://localhost:8080', // Development frontend
   'http://localhost:3000', // Alternative development port
   'http://localhost:5173', // Vite default port
