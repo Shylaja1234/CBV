@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Eye, Plus, Minus } from "lucide-react";
 import { useCart, CartItem } from "@/context/CartContext";
 import { toast } from "sonner";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { EnrichedProduct } from "@/hooks/useProducts";
 
