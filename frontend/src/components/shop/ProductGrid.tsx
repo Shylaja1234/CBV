@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Product } from "@/data/products";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Eye, Plus, Minus } from "lucide-react";
 import { useCart, CartItem } from "@/context/CartContext";
@@ -122,9 +120,10 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-[1]" />
               <img 
-                src={product.image}
+                src={product.image || "https://via.placeholder.com/400x300?text=No+Image"}
                 alt={product.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                onError={e => { e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image"; }}
               />
               <div className="absolute top-2 left-2 z-10">
                 {product.icon && <div className="bg-background/80 backdrop-blur-sm p-2 rounded-lg">
