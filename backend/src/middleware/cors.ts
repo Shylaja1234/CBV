@@ -1,11 +1,10 @@
 import cors from 'cors';
 import { CorsOptions } from 'cors';
 
-const ALLOWED_ORIGINS = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:8080',
-  'http://localhost:3000',
-].filter(Boolean) as string[];
+// Support multiple origins (comma-separated in env)
+const ALLOWED_ORIGINS = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(origin => origin.trim())
+  : ['http://localhost:8080', 'http://localhost:3000'];
 
 const corsOptions: CorsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -14,7 +13,6 @@ const corsOptions: CorsOptions = {
       callback(null, true);
       return;
     }
-
     if (ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true);
     } else {
