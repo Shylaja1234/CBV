@@ -22,6 +22,17 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/messages', messageRoutes);
 
+// Debug route to list all registered routes
+app.get('/debug/routes', (req, res) => {
+  res.json(app._router.stack
+    .filter(r => r.route)
+    .map(r => ({
+      path: r.route.path,
+      methods: r.route.methods
+    }))
+  );
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
