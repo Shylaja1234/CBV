@@ -22,7 +22,6 @@ async function initAdmin() {
     });
 
     if (existingAdmin) {
-      console.log('Admin user already exists');
       return;
     }
 
@@ -38,8 +37,6 @@ async function initAdmin() {
         role: 'ADMIN',
       },
     });
-
-    console.log('Admin user created successfully');
   } catch (error) {
     console.error('Error creating admin user:', error);
   } finally {

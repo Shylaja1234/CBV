@@ -92,14 +92,10 @@ const Profile = () => {
       setIsLoading(true);
       setError(null);
 
-      console.log('Starting profile update with data:', formData);
-
       const response = await userApi.updateProfile({
         name: formData.name.trim(),
         email: formData.email.trim()
       });
-
-      console.log('Profile update response:', response);
 
       // Update the user context with the new data
       updateUserInfo({
@@ -227,17 +223,17 @@ const Profile = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <PageTransition>
-        <main className="flex-grow pt-24 pb-16 px-4 md:px-8">
-          <div className="max-w-2xl mx-auto space-y-6 mt-8">
-            <div className="flex gap-2 mb-4">
+        <main className="flex-grow pt-24 pb-16 px-2 sm:px-4 md:px-8">
+          <div className="max-w-2xl mx-auto space-y-8 mt-8">
+            <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto">
               <Button variant={tab === 'profile' ? 'default' : 'outline'} onClick={() => setTab('profile')}>Profile</Button>
               <Button variant={tab === 'orders' ? 'default' : 'outline'} onClick={() => setTab('orders')}>Order History</Button>
               <Button variant={tab === 'addresses' ? 'default' : 'outline'} onClick={() => setTab('addresses')}>Manage Addresses</Button>
             </div>
             {tab === 'profile' && (
               <>
-                <Card className="bg-card shadow-lg">
-                  <CardHeader className="space-y-1">
+                <Card className="bg-card shadow-xl rounded-2xl border border-border mb-6">
+                  <CardHeader className="space-y-1 pb-0">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div>
                         <CardTitle className="text-2xl font-bold">Profile</CardTitle>
@@ -247,7 +243,7 @@ const Profile = () => {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-0 pb-6 px-4">
                     {error && (
                       <div className="mb-4 p-4 border border-red-500 bg-red-50 dark:bg-red-900/10 rounded-md">
                         <p className="text-red-600 dark:text-red-400">{error}</p>
@@ -281,7 +277,7 @@ const Profile = () => {
                           required
                         />
                       </div>
-                      <Button type="submit" disabled={isLoading}>
+                      <Button type="submit" disabled={isLoading} className="w-full sm:w-auto mt-2">
                         {isLoading ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -294,15 +290,15 @@ const Profile = () => {
                     </form>
                   </CardContent>
                 </Card>
-                <Card className="bg-card shadow-lg mt-6">
-                  <CardHeader className="space-y-1">
+                <Card className="bg-card shadow-xl rounded-2xl border border-border mt-6">
+                  <CardHeader className="space-y-1 pb-0">
                     <CardTitle className="text-xl font-bold">Password Settings</CardTitle>
                     <CardDescription>
                       Change your password to keep your account secure
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="outline" className="w-full sm:w-auto">
+                  <CardContent className="pt-0 pb-6 px-4">
+                    <Button asChild variant="outline" className="w-full sm:w-auto mt-2">
                       <Link to="/change-password" className="flex items-center">
                         <Key className="h-4 w-4 mr-2" />
                         Change Password
@@ -313,47 +309,51 @@ const Profile = () => {
               </>
             )}
             {tab === 'orders' && (
-              <Card className="bg-card shadow-lg">
-                <CardHeader><CardTitle>Order History</CardTitle></CardHeader>
-                <CardContent>
+              <Card className="bg-card shadow-xl rounded-2xl border border-border">
+                <CardHeader className="pb-0"><CardTitle>Order History</CardTitle></CardHeader>
+                <CardContent className="pt-0 pb-8 px-2 sm:px-6">
                   {ordersLoading ? <Loader2 className="animate-spin" /> : (
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr>
-                          <th>ID</th><th>Date</th><th>Total (₹)</th><th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orders.map((order) => (
-                          <tr key={order.id}>
-                            <td>{order.id}</td>
-                            <td>{new Date(order.createdAt).toLocaleString('en-IN')}</td>
-                            <td>₹{(order.total / 100).toLocaleString('en-IN')}</td>
-                            <td>{order.status}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    orders.length === 0 ? <div className="py-10 px-4 text-lg text-center">No orders found.</div> : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm min-w-[400px]">
+                          <thead>
+                            <tr>
+                              <th className="py-3">ID</th><th className="py-3">Date</th><th className="py-3">Total (₹)</th><th className="py-3">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {orders.map((order) => (
+                              <tr key={order.id} className="border-b last:border-0 align-middle">
+                                <td className="py-3">{order.id}</td>
+                                <td className="py-3">{new Date(order.createdAt).toLocaleString('en-IN')}</td>
+                                <td className="py-3">₹{(order.total / 100).toLocaleString('en-IN')}</td>
+                                <td className="py-3">{order.status}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )
                   )}
                 </CardContent>
               </Card>
             )}
             {tab === 'addresses' && (
-              <Card className="bg-card shadow-lg">
-                <CardHeader>
+              <Card className="bg-card shadow-xl rounded-2xl border border-border">
+                <CardHeader className="pb-0">
                   <CardTitle>Manage Addresses</CardTitle>
-                  <Button onClick={handleAddAddress} className="mt-2">Add Address</Button>
+                  <Button onClick={handleAddAddress} className="mt-2 mb-4 w-full sm:w-auto">Add Address</Button>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0 pb-8 px-2 sm:px-6">
                   {addressLoading ? <Loader2 className="animate-spin" /> : (
                     <>
-                      {addresses.length === 0 && <div>No addresses found.</div>}
-                      <ul className="space-y-4">
+                      {addresses.length === 0 && <div className="py-10 px-4 text-lg text-center">No addresses found.</div>}
+                      <ul className="space-y-3">
                         {addresses.map((address) => (
-                          <li key={address.id} className="border rounded p-3 flex flex-col md:flex-row md:items-center md:justify-between">
+                          <li key={address.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 bg-background">
                             <div>
-                              <div><b>{address.name}</b> ({address.phone})</div>
-                              <div>{address.address1}, {address.address2 && address.address2 + ', '}{address.city}, {address.state} - {address.pincode}, {address.country}</div>
+                              <div className="font-semibold mb-1"><b>{address.name}</b> ({address.phone})</div>
+                              <div className="text-sm text-muted-foreground">{address.address1}, {address.address2 && address.address2 + ', '}{address.city}, {address.state} - {address.pincode}, {address.country}</div>
                             </div>
                             <div className="flex gap-2 mt-2 md:mt-0">
                               <Button size="sm" variant="outline" onClick={() => handleEditAddress(address)}>Edit</Button>
@@ -363,8 +363,8 @@ const Profile = () => {
                         ))}
                       </ul>
                       {showAddressForm && (
-                        <form onSubmit={handleAddressFormSubmit} className="mt-6 space-y-2 border-t pt-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <form onSubmit={handleAddressFormSubmit} className="mt-8 space-y-3 border-t pt-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <Input name="name" placeholder="Name" value={addressForm.name} onChange={handleAddressFormChange} required />
                             <Input name="phone" placeholder="Phone" value={addressForm.phone} onChange={handleAddressFormChange} required />
                             <Input name="pincode" placeholder="Pincode" value={addressForm.pincode} onChange={handleAddressFormChange} required />
@@ -374,9 +374,9 @@ const Profile = () => {
                             <Input name="state" placeholder="State" value={addressForm.state} onChange={handleAddressFormChange} required />
                             <Input name="country" placeholder="Country" value={addressForm.country} onChange={handleAddressFormChange} required />
                           </div>
-                          <div className="flex gap-2 mt-2">
-                            <Button type="submit">{addressEditId ? 'Update' : 'Add'} Address</Button>
-                            <Button type="button" variant="outline" onClick={() => setShowAddressForm(false)}>Cancel</Button>
+                          <div className="flex gap-2 mt-3 flex-col sm:flex-row">
+                            <Button type="submit" className="w-full sm:w-auto">{addressEditId ? 'Update' : 'Add'} Address</Button>
+                            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => setShowAddressForm(false)}>Cancel</Button>
                           </div>
                         </form>
                       )}

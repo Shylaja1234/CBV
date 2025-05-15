@@ -2,29 +2,22 @@ import cors from 'cors';
 import { CorsOptions } from 'cors';
 
 const ALLOWED_ORIGINS = [
-  'https://cbv-eight.vercel.app', // Production frontend
-  'http://localhost:8080', // Development frontend
-  'http://localhost:3000', // Alternative development port
-  'http://localhost:5173', // Vite default port
-  process.env.FRONTEND_URL, // Optional: env-based
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'http://localhost:8080',
+  'http://localhost:3000',
 ].filter(Boolean) as string[];
 
 const corsOptions: CorsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     // Allow requests with no origin (like mobile apps, curl, postman)
     if (!origin) {
-      console.log('Request with no origin');
       callback(null, true);
       return;
     }
 
-    console.log('Request origin:', origin);
-    console.log('Allowed origins:', ALLOWED_ORIGINS);
-
     if (ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('Origin not allowed:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },

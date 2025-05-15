@@ -10,8 +10,6 @@ async function cleanup() {
         role: 'STAFF'
       }
     });
-
-    console.log(`Deleted ${deletedUsers.count} staff users`);
   } catch (error) {
     console.error('Error during cleanup:', error);
   } finally {

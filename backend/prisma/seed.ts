@@ -26,10 +26,6 @@ async function main() {
           isFirstLogin: false,
         },
       });
-
-      console.log('Admin user created:', admin);
-    } else {
-      console.log('Admin user already exists');
     }
   } catch (error) {
     console.error('Error seeding database:', error);

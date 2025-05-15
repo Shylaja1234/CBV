@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
 
 // Debug helper
 const debugLog = (message: string, data?: any) => {
-  console.log('[Auth Middleware Debug]', message, data || '');
+  // console.log('[Auth Middleware Debug]', message, data || '');
 };
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {

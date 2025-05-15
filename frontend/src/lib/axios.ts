@@ -3,7 +3,7 @@ import { env } from '@/config/env';
 
 // Create axios instance with custom config
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://cbv-dxnm.onrender.com",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },

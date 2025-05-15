@@ -55,7 +55,6 @@ const UserManagement = () => {
         const response = await api.get('/api/admin/users', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        console.log('Fetched users response:', response.data);
         let usersArr = [];
         if (Array.isArray(response.data)) {
           usersArr = response.data;

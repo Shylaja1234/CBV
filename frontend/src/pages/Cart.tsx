@@ -13,7 +13,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { userApi } from "@/api/userApi";
 
 const CartPage = () => {
-  const { items, removeFromCart, updateQuantity, clearCart, cartTotal, itemCount } = useCart();
+  const { items = [], removeFromCart, updateQuantity, clearCart, cartTotal, itemCount, loading, error } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -29,6 +29,44 @@ const CartPage = () => {
       userApi.getAddresses().then(setAddresses).finally(() => setAddressLoading(false));
     }
   }, [isAuthenticated]);
+
+  if (loading) {
+    return (
+      <PageTransition>
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow pt-24">
+            <div className="container px-4 mx-auto py-12">
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </PageTransition>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageTransition>
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow pt-24">
+            <div className="container px-4 mx-auto py-12">
+              <div className="text-center py-16">
+                <h2 className="text-xl font-medium mb-2">Error loading cart</h2>
+                <p className="text-muted-foreground mb-6">{error}</p>
+                <Button onClick={() => window.location.reload()}>Try Again</Button>
+              </div>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </PageTransition>
+    );
+  }
 
   // Razorpay handler
   const handleCheckout = async () => {
@@ -130,18 +168,19 @@ const CartPage = () => {
                     <div className="space-y-6">
                       {items.map((item) => (
                         <div key={item.id} className="flex gap-4 pb-6 border-b">
-                          <Link to={`/products/${item.id}`} className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
+                          <Link to={`/products/${item.product?.id || item.productId}`} className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
                             <img 
-                              src={item.image} 
-                              alt={item.title} 
+                              src={item.product?.imageUrl || '/placeholder.svg'} 
+                              alt={item.product?.name || 'Product'} 
                               className="w-full h-full object-cover"
+                              onError={e => { e.currentTarget.src = '/placeholder.svg'; }}
                             />
                           </Link>
                           <div className="flex-grow">
                             <div className="flex justify-between">
-                              <Link to={`/products/${item.id}`}>
+                              <Link to={`/products/${item.product?.id || item.productId}`}>
                                 <h3 className="font-medium hover:text-primary transition-colors line-clamp-1">
-                                  {item.title}
+                                  {item.product?.name || 'Product'}
                                 </h3>
                               </Link>
                               <Button 
@@ -153,7 +192,7 @@ const CartPage = () => {
                                 <X className="h-4 w-4" />
                               </Button>
                             </div>
-                            <p className="text-muted-foreground text-sm mb-2">{item.category}</p>
+                            <p className="text-muted-foreground text-sm mb-2">{item.product?.category || ''}</p>
                             <div className="flex justify-between items-end">
                               <div className="flex items-center border rounded-md">
                                 <Button 
@@ -165,7 +204,7 @@ const CartPage = () => {
                                       updateQuantity(item.id, item.quantity - 1);
                                     } else {
                                       removeFromCart(item.id);
-                                      toast.info(`${item.title} removed from cart`);
+                                      toast.info(`${item.product?.name || 'Product'} removed from cart`);
                                     }
                                   }}
                                 >
@@ -182,9 +221,9 @@ const CartPage = () => {
                                 </Button>
                               </div>
                               <div className="text-right">
-                                <div className="font-semibold">{item.price}</div>
+                                <div className="font-semibold">{item.product?.price !== undefined ? item.product.price : 'N/A'}</div>
                                 <div className="text-sm text-muted-foreground">
-                                  {item.quantity > 1 ? `${item.quantity} × ${item.price}` : ''}
+                                  {item.quantity > 1 ? `${item.quantity} × ${item.product?.price !== undefined ? item.product.price : 'N/A'}` : ''}
                                 </div>
                               </div>
                             </div>

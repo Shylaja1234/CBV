@@ -13,7 +13,7 @@ const JWT_EXPIRES_IN = 86400; // 24 hours in seconds
 
 // Debug helper
 const debugLog = (message: string, data?: any) => {
-  console.log(`[Auth Debug] ${message}`, data || '');
+  // console.log(`[Auth Debug] ${message}`, data || '');
 };
 
 // Helper function to validate email domain

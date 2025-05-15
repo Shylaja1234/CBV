@@ -30,13 +30,11 @@ export function initApiService() {
 async function testApiConnection() {
   try {
     await apiClient.get(API_ENDPOINTS.AUTH.LOGIN);
-    console.log('API connection successful');
   } catch (error) {
     console.error('API connection failed:', error);
     
     // If we're in development and using mock data, that's fine
     if (process.env.NODE_ENV === 'development' && env.features.enableMockData) {
-      console.log('Using mock data instead');
       return;
     }
     

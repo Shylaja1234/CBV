@@ -109,18 +109,18 @@ const App = () => (
                     </Route>
 
                     {/* Protected Routes */}
-                    <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
+                    <Route path="/" element={<Index />} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/learn-more" element={<LearnMore />} />
                     <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-                    <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
                     <Route path="/products" element={<RequireAuth><ProductsPage /></RequireAuth>} />
-                    <Route path="/products/:id" element={<RequireAuth><ProductDetail /></RequireAuth>} />
-                    <Route path="/cart" element={<RequireAuth><CartPage /></RequireAuth>} />
-                    <Route path="/favorites" element={<RequireAuth><FavoritesPage /></RequireAuth>} />
-                    <Route path="/pricing" element={<RequireAuth><PricingPage /></RequireAuth>} />
+                    <Route path="/products/:id" element={<ProductDetail />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/favorites" element={<FavoritesPage />} />
+                    <Route path="/pricing" element={<PricingPage />} />
+                    <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
 
                     {/* 404 Route */}
                     <Route path="*" element={<NotFound />} />

@@ -2,7 +2,7 @@
 export const env = {
   // API Configuration
   api: {
-    baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://cbv-dxnm.onrender.com',
+    baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
     timeout: 10000,
   },
   

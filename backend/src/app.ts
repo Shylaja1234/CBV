@@ -8,6 +8,8 @@ import staffRoutes from './routes/staff.routes';
 import categoryRoutes from './routes/category.routes';
 import publicRoutes from './routes/public.routes';
 import orderRoutes from './routes/order.routes';
+import cartRoutes from './routes/cartRoutes';
+import messageRoutes from './routes/messageRoutes';
 
 dotenv.config();
 
@@ -27,6 +29,19 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api', publicRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/messages', messageRoutes);
+
+// Debug route to list all registered routes
+app.get('/debug/routes', (req, res) => {
+  res.json(app._router.stack
+    .filter((r: any) => r.route)
+    .map((r: any) => ({
+      path: r.route.path,
+      methods: r.route.methods
+    }))
+  );
+});
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -36,6 +51,4 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-}); 
+app.listen(PORT); 

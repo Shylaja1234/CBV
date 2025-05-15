@@ -62,13 +62,6 @@ const ProductsFilter = ({
   const [tempSelectedRating, setTempSelectedRating] = useState<string[]>([]);
   const [tempSelectedBrands, setTempSelectedBrands] = useState<string[]>([]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Categories:', categories);
-    console.log('Is Loading:', isLoadingCategories);
-    console.log('Error:', error);
-  }, [categories, isLoadingCategories, error]);
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -145,9 +138,6 @@ const ProductsFilter = ({
         </div>
       );
     }
-
-    // Log categories before mapping
-    console.log('Rendering category tabs with categories:', categories);
 
     // Render the category tabs
     return Array.isArray(categories)

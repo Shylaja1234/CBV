@@ -71,34 +71,16 @@ export const rateLimitMiddleware = async (config: any) => {
 
 // Middleware to handle request logging
 export const loggingMiddleware = async (config: any) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, {
-      params: config.params,
-      data: config.data,
-    });
-  }
   return config;
 };
 
 // Middleware to handle response logging
 export const responseLoggingMiddleware = (response: any) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-      status: response.status,
-      data: response.data,
-    });
-  }
   return response;
 };
 
 // Middleware to handle error logging
 export const errorLoggingMiddleware = (error: any) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.error(`API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-  }
   return Promise.reject(error);
 };
 

@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, Tooltip, LineChart, Line } from "recharts";
-import { ArrowUpRight, Users, IndianRupee, ShoppingBag, TrendingUp } from "lucide-react";
+import { ArrowUpRight, Users, IndianRupee, ShoppingBag, TrendingUp, Mail } from "lucide-react";
+import api from '@/lib/axios';
 
 // Format currency in Indian format
 const formatIndianCurrency = (value: number) => {
@@ -15,35 +16,68 @@ const formatIndianCurrency = (value: number) => {
   }).format(value);
 };
 
-// Demo data
-const stats = {
-  totalSales: 1955000,
-  totalProfit: 1050000,
-  totalVisitors: 26606,
-  totalOrders: 256,
-};
-
-const salesData = [
-  { month: 'Jan', sales: 350000, visitors: 15000 },
-  { month: 'Feb', sales: 290000, visitors: 12000 },
-  { month: 'Mar', sales: 180000, visitors: 18000 },
-  { month: 'Apr', sales: 270000, visitors: 22000 },
-  { month: 'May', sales: 180000, visitors: 15000 },
-  { month: 'Jun', sales: 195000, visitors: 19000 },
-  { month: 'Jul', sales: 320000, visitors: 25000 },
-];
-
-const profitData = [
-  { month: 'Jan', profit: 250000, loss: 0 },
-  { month: 'Feb', profit: 180000, loss: 0 },
-  { month: 'Mar', profit: 120000, loss: 50000 },
-  { month: 'Apr', profit: 190000, loss: 0 },
-  { month: 'May', profit: 80000, loss: 0 },
-  { month: 'Jun', profit: 150000, loss: 0 },
-  { month: 'Jul', profit: 200000, loss: 0 },
-];
-
 const Dashboard = () => {
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    totalProfit: 0,
+    totalVisitors: 0,
+    totalOrders: 0,
+    contactCount: 0,
+    prevSales: 0,
+    prevProfit: 0,
+    prevVisitors: 0,
+    prevOrders: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [salesData, setSalesData] = useState<any[]>([]);
+  const [profitData, setProfitData] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true);
+      try {
+        const [ordersRes, usersRes, messagesRes, salesRes, profitRes, activityRes] = await Promise.all([
+          api.get('/api/orders/admin/summary'), // { totalSales, totalProfit, totalOrders, prevSales, prevProfit, prevOrders }
+          api.get('/api/users/admin/summary'),  // { totalVisitors, prevVisitors }
+          api.get('/api/messages'),             // Array of messages
+          api.get('/api/orders/admin/sales-chart'), // [{ month, sales, visitors }]
+          api.get('/api/orders/admin/profit-chart'), // [{ month, profit, loss }]
+          api.get('/api/orders/admin/recent-activity'), // [{ id, orderId, productName, createdAt }]
+        ]);
+        setStats({
+          totalSales: ordersRes.data.totalSales,
+          totalProfit: ordersRes.data.totalProfit,
+          totalOrders: ordersRes.data.totalOrders,
+          contactCount: Array.isArray(messagesRes.data) ? messagesRes.data.length : 0,
+          prevSales: ordersRes.data.prevSales,
+          prevProfit: ordersRes.data.prevProfit,
+          prevOrders: ordersRes.data.prevOrders,
+          totalVisitors: usersRes.data.totalVisitors,
+          prevVisitors: usersRes.data.prevVisitors,
+        });
+        setSalesData(Array.isArray(salesRes.data) ? salesRes.data : []);
+        setProfitData(Array.isArray(profitRes.data) ? profitRes.data : []);
+        setActivity(Array.isArray(activityRes.data) ? activityRes.data : []);
+      } catch (err) {
+        setStats({ totalSales: 0, totalProfit: 0, totalVisitors: 0, totalOrders: 0, contactCount: 0, prevSales: 0, prevProfit: 0, prevVisitors: 0, prevOrders: 0 });
+        setSalesData([]);
+        setProfitData([]);
+        setActivity([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Helper to calculate percent change
+  const percentChange = (current: number, prev: number) => {
+    if (prev === 0 || prev === undefined || prev === null) return 'N/A';
+    const change = ((current - prev) / prev) * 100;
+    return `${change > 0 ? '+' : ''}${change.toFixed(1)}%`;
+  };
+
   return (
     <PageTransition>
       <div className="p-6">
@@ -53,7 +87,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
@@ -62,7 +96,7 @@ const Dashboard = () => {
                   <h3 className="text-2xl font-bold">{formatIndianCurrency(stats.totalSales)}</h3>
                   <p className="text-sm text-emerald-500 flex items-center mt-1">
                     <ArrowUpRight className="h-4 w-4 mr-1" />
-                    12% from last month
+                    {percentChange(stats.totalSales, stats.prevSales)} from last month
                   </p>
                 </div>
                 <div className="bg-primary/10 p-3 rounded-full">
@@ -80,7 +114,7 @@ const Dashboard = () => {
                   <h3 className="text-2xl font-bold">{formatIndianCurrency(stats.totalProfit)}</h3>
                   <p className="text-sm text-emerald-500 flex items-center mt-1">
                     <ArrowUpRight className="h-4 w-4 mr-1" />
-                    8% from last month
+                    {percentChange(stats.totalProfit, stats.prevProfit)} from last month
                   </p>
                 </div>
                 <div className="bg-primary/10 p-3 rounded-full">
@@ -98,7 +132,7 @@ const Dashboard = () => {
                   <h3 className="text-2xl font-bold">{stats.totalVisitors.toLocaleString()}</h3>
                   <p className="text-sm text-emerald-500 flex items-center mt-1">
                     <ArrowUpRight className="h-4 w-4 mr-1" />
-                    18% from last month
+                    {percentChange(stats.totalVisitors, stats.prevVisitors)} from last month
                   </p>
                 </div>
                 <div className="bg-primary/10 p-3 rounded-full">
@@ -116,11 +150,25 @@ const Dashboard = () => {
                   <h3 className="text-2xl font-bold">{stats.totalOrders}</h3>
                   <p className="text-sm text-emerald-500 flex items-center mt-1">
                     <ArrowUpRight className="h-4 w-4 mr-1" />
-                    5% from last month
+                    {percentChange(stats.totalOrders, stats.prevOrders)} from last month
                   </p>
                 </div>
                 <div className="bg-primary/10 p-3 rounded-full">
                   <ShoppingBag className="h-5 w-5 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Contact Messages</p>
+                  <h3 className="text-2xl font-bold">{stats.contactCount}</h3>
+                </div>
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <Mail className="h-5 w-5 text-primary" />
                 </div>
               </div>
             </CardContent>
@@ -135,19 +183,23 @@ const Dashboard = () => {
               <CardDescription>Monthly sales and visitor analytics</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                    <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="sales" name="Sales" fill="#8884d8" />
-                    <Bar yAxisId="right" dataKey="visitors" name="Visitors" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] flex items-center justify-center">
+                {salesData.length === 0 ? (
+                  <div className="text-muted-foreground">No sales or visitor data available.</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={salesData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+                      <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar yAxisId="left" dataKey="sales" name="Sales" fill="#8884d8" />
+                      <Bar yAxisId="right" dataKey="visitors" name="Visitors" fill="#82ca9d" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -158,18 +210,22 @@ const Dashboard = () => {
               <CardDescription>Monthly profit and loss analysis</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={profitData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="profit" name="Profit" stroke="#82ca9d" />
-                    <Line type="monotone" dataKey="loss" name="Loss" stroke="#ff0000" />
-                  </LineChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] flex items-center justify-center">
+                {profitData.length === 0 ? (
+                  <div className="text-muted-foreground">No profit/loss data available.</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={profitData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="profit" name="Profit" stroke="#82ca9d" />
+                      <Line type="monotone" dataKey="loss" name="Loss" stroke="#ff0000" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -182,24 +238,28 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((item) => (
-                <div key={item} className="flex items-center justify-between border-b pb-4 last:border-0">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-primary/10 p-2 rounded-full">
-                      <ShoppingBag className="h-4 w-4 text-primary" />
+              {activity.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">No recent activity to display.</div>
+              ) : (
+                activity.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between border-b pb-4 last:border-0">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-primary/10 p-2 rounded-full">
+                        <ShoppingBag className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Order #{item.orderId}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Customer purchased {item.productName}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">Order #{Math.floor(Math.random() * 10000)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Customer purchased Product {Math.floor(Math.random() * 10) + 1}
-                      </p>
+                    <div className="text-sm text-muted-foreground">
+                      {item.createdAt ? new Date(item.createdAt).toLocaleString('en-IN') : ''}
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {Math.floor(Math.random() * 60) + 1} minutes ago
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
           <CardFooter>

@@ -1,13 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
-const {
+import { Router, Request, Response, NextFunction } from 'express';
+import { authenticateToken } from '../middleware/auth';
+import {
   getCart,
   addToCart,
   updateCartItem,
   removeFromCart,
   clearCart
-} = require('../controllers/cartController');
+} from '../controllers/cartController';
+
+const router = Router();
 
 // All cart routes require authentication
 router.use(authenticateToken);
@@ -27,4 +28,4 @@ router.delete('/items/:cartItemId', removeFromCart);
 // Clear cart
 router.delete('/clear', clearCart);
 
-module.exports = router; 
+export default router; 

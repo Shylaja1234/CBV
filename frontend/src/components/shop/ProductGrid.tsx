@@ -17,9 +17,12 @@ interface ProductGridProps {
 const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
   const { addToCart, items, updateQuantity, removeFromCart } = useCart();
   
+  const getCartItem = (productId: number) => {
+    if (!Array.isArray(items)) return undefined;
+    return items.find(item => item.productId === productId);
+  };
   const getCartItemQuantity = (productId: number) => {
-    if (!Array.isArray(items)) return 0;
-    const item = items.find(item => item.id === productId);
+    const item = getCartItem(productId);
     return item ? item.quantity : 0;
   };
   
@@ -34,10 +37,9 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
   
   const increaseQuantity = (product: EnrichedProduct) => {
     if (!product.inStock) return;
-    
-    const currentQuantity = getCartItemQuantity(product.id);
-    if (currentQuantity > 0) {
-      updateQuantity(product.id, currentQuantity + 1);
+    const cartItem = getCartItem(product.id);
+    if (cartItem) {
+      updateQuantity(cartItem.id, cartItem.quantity + 1);
       toast.success(`Added one more ${product.name}`);
     } else {
       handleAddToCart(product);
@@ -45,12 +47,14 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
   };
   
   const decreaseQuantity = (product: EnrichedProduct) => {
-    const currentQuantity = getCartItemQuantity(product.id);
-    if (currentQuantity > 1) {
-      updateQuantity(product.id, currentQuantity - 1);
-    } else if (currentQuantity === 1) {
-      removeFromCart(product.id);
-      toast.info(`${product.name} removed from cart`);
+    const cartItem = getCartItem(product.id);
+    if (cartItem) {
+      if (cartItem.quantity > 1) {
+        updateQuantity(cartItem.id, cartItem.quantity - 1);
+      } else if (cartItem.quantity === 1) {
+        removeFromCart(cartItem.id);
+        toast.info(`${product.name} removed from cart`);
+      }
     }
   };
 
@@ -120,10 +124,10 @@ const ProductGrid = ({ products, isLoading = false }: ProductGridProps) => {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-[1]" />
               <img 
-                src={product.image || "https://via.placeholder.com/400x300?text=No+Image"}
+                src={product.image || "/placeholder.svg"}
                 alt={product.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onError={e => { e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image"; }}
+                onError={e => { e.currentTarget.src = "/placeholder.svg"; }}
               />
               <div className="absolute top-2 left-2 z-10">
                 {product.icon && <div className="bg-background/80 backdrop-blur-sm p-2 rounded-lg">

@@ -81,11 +81,16 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-medium mb-1">Our Location</h3>
-                  <p className="text-muted-foreground">
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=Plot+No.+225B,+Shop+No.+13.+Paramount+House,+Panvel,+Navi+Mumbai,+Maharashtra+410206,+India"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
                     Plot No. 225B, Shop No. 13. Paramount House<br />
                     Panvel, Navi Mumbai, Maharashtra 410206<br />
                     India
-                  </p>
+                  </a>
                 </div>
               </div>
               

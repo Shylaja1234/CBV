@@ -3,7 +3,13 @@ import api from '@/lib/axios';
 
 const CartContext = createContext();
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
+};
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -13,6 +19,7 @@ export const CartProvider = ({ children }) => {
   // Fetch cart items from backend
   const fetchCart = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('authToken');
       if (!token) {
         setCartItems([]);
@@ -23,11 +30,12 @@ export const CartProvider = ({ children }) => {
       const response = await api.get('/api/cart', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setCartItems(response.data);
+      setCartItems(response.data || []);
       setError(null);
     } catch (err) {
       console.error('Error fetching cart:', err);
-      setError('Failed to fetch cart items');
+      setError(err.response?.data?.error || 'Failed to fetch cart items');
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
@@ -145,15 +153,15 @@ export const CartProvider = ({ children }) => {
   };
 
   const value = {
-    cartItems,
+    items: cartItems,
     loading,
     error,
     addToCart,
     updateQuantity,
     removeFromCart,
     clearCart,
-    getTotalItems,
-    getTotalPrice,
+    cartTotal: getTotalPrice(),
+    itemCount: getTotalItems(),
     refreshCart: fetchCart
   };
 

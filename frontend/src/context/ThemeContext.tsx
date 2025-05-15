@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "dark" | "light";
@@ -38,8 +37,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Save to localStorage
     localStorage.setItem("theme", theme);
-    
-    console.log("Theme updated:", theme);
   }, [theme]);
 
   const toggleTheme = () => {

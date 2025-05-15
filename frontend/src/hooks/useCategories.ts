@@ -21,7 +21,6 @@ export const useCategories = () => {
     queryFn: async () => {
       try {
         const response = await fetchCategories();
-        console.log('Fetched categories response:', response);
         // If we get a valid array, use it
         if (Array.isArray(response)) {
           return response;

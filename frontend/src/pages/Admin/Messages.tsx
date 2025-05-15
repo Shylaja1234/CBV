@@ -28,6 +28,9 @@ const Messages = () => {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [replying, setReplying] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -98,6 +101,26 @@ const Messages = () => {
     }
   };
 
+  const handleSendReply = async () => {
+    if (!selectedMessage || !replyText.trim()) return;
+    setSendingReply(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      await api.post(`/api/messages/${selectedMessage.id}/reply`, {
+        reply: replyText.trim(),
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast({ title: "Reply sent", description: "Your reply has been sent to the user." });
+      setReplying(false);
+      setReplyText("");
+    } catch {
+      toast({ title: "Error", description: "Failed to send reply." });
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
   const unreadCount = messages.filter(m => m.status === "unread").length;
 
   return (
@@ -108,12 +131,12 @@ const Messages = () => {
             <h1 className="text-2xl font-bold mb-2">Contact Messages</h1>
             <p className="text-muted-foreground">
               Manage inquiries from your contact form
-              {unreadCount > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {unreadCount} unread
-                </Badge>
-              )}
             </p>
+            {unreadCount > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {unreadCount} unread
+              </Badge>
+            )}
           </div>
         </div>
         <div className="mb-6">
@@ -221,9 +244,26 @@ const Messages = () => {
             <div className="py-4">
               {selectedMessage?.message}
             </div>
-            <DialogFooter>
-              <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
-            </DialogFooter>
+            {replying ? (
+              <div className="space-y-2">
+                <textarea
+                  className="w-full border rounded p-2 min-h-[80px] text-foreground bg-background"
+                  placeholder="Type your reply..."
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  disabled={sendingReply}
+                />
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => setReplying(false)} disabled={sendingReply}>Cancel</Button>
+                  <Button onClick={handleSendReply} disabled={sendingReply || !replyText.trim()}>{sendingReply ? "Sending..." : "Send"}</Button>
+                </div>
+              </div>
+            ) : (
+              <DialogFooter>
+                <Button onClick={() => setReplying(true)}>Reply</Button>
+                <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
+              </DialogFooter>
+            )}
           </DialogContent>
         </Dialog>
       </div>

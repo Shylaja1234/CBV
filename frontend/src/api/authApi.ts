@@ -44,8 +44,6 @@ export const authApi = {
       // Determine which endpoint to use
       const endpoint = isCompanyEmail ? '/api/auth/admin/login' : '/api/auth/login';
       
-      console.log('Using login endpoint:', endpoint); // Debug log
-      
       const response = await apiClient.post<AuthResponse>(endpoint, credentials);
       
       // Validate admin email

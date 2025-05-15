@@ -60,11 +60,16 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                <span className="text-muted-foreground">
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Plot+No.+225B,+Shop+No.+13.+Paramount+House,+Panvel,+Navi+Mumbai,+Maharashtra+410206,+India"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
                   Plot No. 225B, Shop No. 13. Paramount House<br />
                   Panvel, Navi Mumbai, Maharashtra 410206<br />
                   India
-                </span>
+                </a>
               </li>
               <li className="flex items-center">
                 <PhoneCall className="h-5 w-5 text-primary mr-2 flex-shrink-0" />

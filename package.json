@@ -1,0 +1,13 @@
+{
+  "name": "connectingbee",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install && npm run build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm run start",
+    "start:frontend": "cd frontend && npm run preview -- --port 3000"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
