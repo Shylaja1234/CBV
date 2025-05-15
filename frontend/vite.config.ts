@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "0.0.0.0",
     port: 8080,
+    // Proxy is for local development only. In production, use VITE_API_BASE_URL.
     proxy: {
       '/api': 'http://localhost:5000',
     },
